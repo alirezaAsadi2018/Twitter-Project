@@ -1,0 +1,15 @@
+{% extends 'userprofile/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="ui items">
+        {% for like in likes %}
+            {% if like.user.image is not None and like.user.image.name %}
+                <img class="ui avatar image" src="{{like.user.image.url}}">
+            {% else %}
+                <img class="ui avatar image" src="{% static 'userprofile/image/default-profile-avatar.png' %}">
+            {% endif %}
+            <a href="{% url 'profile' like.user.id %}">{{ like.user.username }}</a>
+            <hr>
+        {% endfor %}
+    </div>
+{% endblock content %}

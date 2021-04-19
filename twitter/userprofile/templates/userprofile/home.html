@@ -1,0 +1,144 @@
+{% extends 'userprofile/base.html' %}
+{% load static %}
+{% load hashtolink %}
+{% block content %}
+    {% block top-content %}
+        <div class="ui search">
+            <div class="ui fluid icon input">
+                {% if search_field %}
+                    <input class="prompt search-box" type="text" placeholder="Search Twitter" value="{{search_field}}">
+                {% else %}
+                    <input class="prompt search-box" type="text" placeholder="Search Twitter">
+                {% endif %}
+                <i class="search icon"></i>
+            </div>
+        </div>
+    {% endblock top-content %}
+    <div class="ui items">
+        {% for tweet in tweets %}
+            <div class="item {{tweet.id}}">
+                <div class="ui fluid card">
+                    <div class="content">
+                        <span class="right floated meta">{{tweet.create_datetime|date:"M d" }}</span>
+                        <div class="left aligned author">
+                            {% if tweet.retweet is not None %}
+                                {% if tweet.retweet.owner.image is not None and tweet.retweet.owner.image.name %}
+                                    <img class="ui avatar image" src="{{tweet.retweet.owner.image.url}}">
+                                {% else %}
+                                    <img class="ui avatar image"
+                                                src="{% static 'userprofile/image/default-profile-avatar.png' %}">
+                                {% endif %}
+                                <a href="{% url 'profile' tweet.retweet.owner.id %}">{{ tweet.retweet.owner.username }} </a>
+                                <span style="color: #0ea432">({{ tweet.owner.username }} Retweeted)</span>
+                            {% else %}
+                                {% if tweet.owner.image is not None and tweet.owner.image.name %}
+                                    <img class="ui avatar image" src="{{tweet.owner.image.url}}">
+                                {% else %}
+                                    <img class="ui avatar image"
+                                                src="{% static 'userprofile/image/default-profile-avatar.png' %}">
+                                {% endif %}
+                                <a href="{% url 'profile' tweet.owner.id %}">{{ tweet.owner.username }} </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if tweet.text %}
+                        <div class="content">
+                            <div class="left aligned description">
+                                <p>{{ tweet.text|safe|hashtolink }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if tweet.file is not None and tweet.file.name %}
+                        <div class="image">
+                            <img class="ui image" src="{{tweet.file.url}}">
+                        </div>
+                    {% endif %}
+                    <div class="content">
+                        <span class="right floated">
+                            <div class="ui labeled button" tabindex="0">
+
+                                {% if tweet.id in likes %}
+                                <div class="ui red button btn interaction" style="background:black " data-item="{{ tweet.id }}"
+                                        data-action="dislike">{% csrf_token %}
+                                    <i class="heart icon"></i> Dislike
+                                </div>
+                                {% else %}
+
+                                <div class="ui red button btn interaction" data-item="{{ tweet.id }}"
+                                data-action="like">{% csrf_token %}
+                                    <i class="heart icon"></i> Like
+                                </div>
+                                {% endif %}
+
+
+                                {% if tweet.like_count > 0 %}
+                                    <a class="ui basic red left pointing label" href="{% url 'likes' tweet.id %}">
+                                        {{ tweet.like_count }}
+                                    </a>
+                                {% else %}
+                                    <a class="ui basic red left pointing label" >
+                                        {{ tweet.like_count }}
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                        </span>
+                        <div class="ui labeled button" tabindex="0">
+                            {% if user.id is tweet.owner.id %}
+
+                            <div class="ui orange button btn interaction" data-item="{{ tweet.id }}"
+                            data-action="remove">{% csrf_token %}
+                                <i class="delete icon"></i> remove
+                            </div>
+
+                            {% endif %}
+                            <div class="ui blue button btn interaction" data-item="{{ tweet.id }}"
+                            data-action="retweet">{% csrf_token %}
+                                <i class="retweet icon"></i> retweet
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock content %}
+{% block script-block %}
+    <script>
+        function searchTweets(text){
+            if(text){
+                if(text.startsWith('@') || text.startsWith('#')){
+                    if(text.length == 1)
+                        return;
+                }
+                if(text.startsWith('#')){
+                    // replace # with * cause it is not accepted in url and ignored
+                    text = text.replace('#', '*')
+                }
+                $('.ui.items .item').hide();
+                fetch('http://localhost:8000/search/' + text)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    data['result'].forEach(element => {
+                        $('.' + element).show();
+                    });
+                });
+            }else{
+                // search box is empty! show all tweets.
+                $('.ui.items .item').show();
+            }
+        }
+
+        $('.ui.item.home').addClass('active');
+        // Also search the first time page loads
+        const text = $('.search-box').val();
+        searchTweets(text);
+        $('.search-box').on('input', function() {
+            var text = $(this).val();
+            searchTweets(text);
+        });
+    </script>
+{% endblock script-block %}

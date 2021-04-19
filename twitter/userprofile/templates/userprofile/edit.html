@@ -1,0 +1,29 @@
+{% extends "userprofile/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="ui inverted attached fluid segment">
+    <form class="ui big inverted form error" method="POST" action="" enctype='multipart/form-data'>{% csrf_token %}
+        <h2 class="ui huge inverted white dividing header">Edit Profile</h2>
+            {% for field in form %}
+                <div class="field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <small style="color: grey">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <div class="ui tiny error message">
+                    {{ field.errors }}
+                </div>
+                {% endif %}
+                </div>
+            {% endfor %}
+        <button class="ui primary large submit button btn btn-dfault" type="submit">Edit</button>
+    </form>
+</div>
+{% endblock %}
+{% block script-block %}
+    <script>
+        $('.ui.form').form();
+    </script>
+{% endblock script-block %}

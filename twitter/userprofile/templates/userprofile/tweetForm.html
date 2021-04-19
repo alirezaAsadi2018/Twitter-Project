@@ -1,0 +1,34 @@
+{% extends 'userprofile/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="ui inverted segment">
+        <form class="ui inverted big form error" method="post" action="" enctype='multipart/form-data'>{% csrf_token %}
+            <h2 class="ui huge inverted white dividing header">Add a new Tweet</h2>
+            {% for field in form %}
+                <div class="field">
+                    {{ field.label_tag }}
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <input type='submit' class='ui primary large submit button btn btn-dfault' value="tweet"/>
+            <div class="ui error message"></div>
+        </form>
+    </div>
+ {% endblock content %}
+ {% block script-block %}
+ <script>
+    $('.ui.item.tweet').addClass('active');
+    $('.ui.form').submit(function() {
+        var fields = $('.ui.form').form('get values', ['text', 'file']);
+        if(fields['file'] || fields['text'])
+            return true;
+        $('.ui.error.message').text(function( index ) {
+            return 'Tweet body text and file can\'t be empty at the same time!\n' + 
+                    'Please provide one of them with data!';
+        });
+        return false;   // cancel form action
+    });
+    </script>
+ {% endblock script-block %}
+
+ 

@@ -1,0 +1,44 @@
+{% extends 'userprofile/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="ui horizontal basic segments">
+        <div class="ui padded segment big ">
+            Likes:
+            <br>
+            {% for like in likes %}
+                {% if like.tweet.owner.id is user.id %}
+                    <a href="{% url 'profile' like.user.id %}">{{ like.user.username }} </a> liked your tweet <br>
+                    {{like.tweet.text|linebreaks|truncatechars:25}}
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="ui padded segment big ">
+        Follows:
+        <br>
+        {% for follow in follows %}
+            {% if follow.followed.id is user.id %}
+                <a href="{% url 'profile' follow.follower.id %}">{{ follow.follower.username }} </a> start following you <br>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="ui padded segment big">
+            Retweets:
+            <br>
+            {% for retweet in retweets %}
+                {% if retweet.retweet is not None %}
+                    {% if retweet.retweet.owner.id is user.id %}
+                        <a href="{% url 'profile' retweet.owner.id %}">{{ retweet.owner.username }} </a> retweeted your tweet:
+                        {{retweet.retweet.text|linebreaks|truncatechars:25}}
+                        <br>
+                        <br>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}
+{% block script-block %}
+    <script>
+    $('.ui.item.log').addClass('active');
+    </script>
+{% endblock script-block %}

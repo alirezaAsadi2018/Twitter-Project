@@ -1,0 +1,39 @@
+{% extends "userprofile/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="ui inverted attached fluid segment">
+    <form class="ui big inverted form error" method="post">
+      {% csrf_token %}
+      <h2 class="ui huge inverted white dividing header">Sign up</h2>
+      {% for field in form %}
+        <div class="required field">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.help_text %}
+            <small style="color: grey">{{ field.help_text }}</small>
+          {% endif %}
+          {% if field.errors %}
+          <div class="ui tiny error message">
+            {{ field.errors }}
+          </div>
+          {% endif %}
+          <!-- {% for error in field.errors %}
+            
+          {% endfor %} -->
+        </div>
+      {% endfor %}
+      <button class="ui primary large submit button" type="submit">Sign up</button>
+    </form>
+  </div>
+</div>
+<div class="ui bottom attached warning message">
+  <i class="icon help"></i>
+  Already signed up? <a href="{% url 'login' %}">Login here</a> instead.
+</div>
+{% endblock %}
+{% block script-block %}
+    <script>
+        $('.ui.form').form();
+        $('.ui.item.signup').addClass('active');
+    </script>
+{% endblock script-block %}

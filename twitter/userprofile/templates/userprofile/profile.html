@@ -1,0 +1,53 @@
+{% extends 'userprofile/home.html' %}
+{% load static %}
+{% block top-content %}
+    {% if selected_user.image is not None and selected_user.image.name %}
+        <img class="ui avatar image" src="{{selected_user.image.url}}">
+    {% else %}
+        <img class="ui avatar image" src="{% static 'userprofile/image/default-profile-avatar.png' %}">
+    {% endif %}
+    {{ selected_user.username }}
+    {% if user.id is not selected_user.id %}
+
+        {% if following == True %}
+            <button data-item="{{ selected_user.id }}" data-action="unfollow"
+                    class="ui right floated button btn interaction">{% csrf_token %}
+                unfollow
+            </button>
+        {% else %}
+            <button data-item="{{ selected_user.id }}" data-action="follow"
+                    class="ui right floated button btn interaction">{% csrf_token %}
+                follow
+            </button>
+        {% endif %}
+    {% endif %}
+    {% if selected_user.biography%}
+        <br>
+        <br>
+        <div class="content">
+            <div class="ui small feed">
+                <div class="event">
+                <div class="content">
+                    <div class="summary">
+                        {{ selected_user.biography}}
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <br>
+    {% if user.id is selected_user.id %}
+        <a href="{% url 'edit' %}">edit image & bio </a>
+        <br>
+        <a href="{% url 'usernameedit' %}">edit username </a>
+    {% endif %}
+    <hr/>
+{% endblock top-content %}
+{% block script-block %}
+    {% if user.id is selected_user.id %}
+        <script>
+            $('.ui.item.profile').addClass('active');
+        </script>
+    {% endif %}
+{% endblock script-block %}
