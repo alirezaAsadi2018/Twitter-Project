@@ -49,9 +49,13 @@
                         </div>
                     {% endif %}
                     {% if tweet.file is not None and tweet.file.name %}
-                        <div class="image">
-                            <img class="ui image" src="{{tweet.file.url}}">
-                        </div>
+                        {% if tweet.filetype == 'image' %}    
+                            <div class="image">
+                                <img class="ui image" src="{{tweet.file.url}}">
+                            </div>
+                        {% else %}
+                            <video id="{{tweet.id}}" class="video-player" controls="" autoplay="" class="videoCentered"></video>
+                        {% endif %}
                     {% endif %}
                     <div class="content">
                         <span class="right floated">
@@ -106,6 +110,7 @@
     </div>
 {% endblock content %}
 {% block script-block %}
+    {% block top-script-block %}
     <script>
         function searchTweets(text){
             if(text){
@@ -139,6 +144,36 @@
         $('.search-box').on('input', function() {
             var text = $(this).val();
             searchTweets(text);
+        });
+    </script>
+    {% endblock top-script-block %}
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>    
+    <script>
+        function isScrolledIntoView(elem){
+            var docViewTop = $(window).scrollTop();
+            var docViewBottom = docViewTop + $(window).height();
+            var elemTop = $(elem).offset().top;
+            var elemBottom = elemTop + $(elem).height();
+            return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
+        }
+        const videoPlayers = $('.video-player');
+        videoPlayers.each(function(){
+            const id = $(this).attr('id');
+            const video = $(this)[0];
+            const videoSrc = 'http://localhost:8000/media/' + id + '/hls.m3u8'
+            //
+            // First check for native browser HLS support
+            //
+            if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+                //
+                // If no native HLS support, check if hls.js is supported
+                //
+            } else if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+            }
         });
     </script>
 {% endblock script-block %}

@@ -5,3 +5,6 @@ pytz==2020.5
 sqlparse==0.4.1
 django-crispy-forms==1.10.0
 django-rest-framework==0.1.0
+filetype==1.0.7
+ffmpeg==1.4
+python-ffmpeg-video-streaming==0.1.14

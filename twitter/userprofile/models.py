@@ -7,6 +7,11 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch.dispatcher import receiver
 import os
 from django.conf import settings
+import filetype
+import ffmpeg
+import ffmpeg_streaming
+from ffmpeg_streaming import Formats
+from threading import Thread
 
 
 class User(AbstractUser):
@@ -24,6 +29,21 @@ class User(AbstractUser):
     biography = models.TextField(verbose_name=_('biography'), blank=True)
 
 
+def convert_video_to_hls(arg, path_root):
+    if not os.path.exists(path_root):
+        os.makedirs(path_root)
+    video = ffmpeg_streaming.input(str(settings.MEDIA_ROOT + arg.file.name))
+    save_to = str(path_root + '/key')
+    # A URL (or a path) to access the key on your website
+    url = settings.MEDIA_URL + str(arg.id) + '/key'
+    # or url = '/"PATH TO THE KEY DIRECTORY"/key';
+
+    hls = video.hls(Formats.h264())
+    hls.encryption(save_to, url)
+    hls.auto_generate_representations()
+    hls.output(str(path_root + '/hls.m3u8'))
+
+
 class Tweet(models.Model):
     # foreign key to User this Tweet refers to
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('tweet owner'),
@@ -38,6 +58,17 @@ class Tweet(models.Model):
                                          auto_now_add=False)
     retweet = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     like_count = models.IntegerField(default=0, null=True, blank=True)
+
+    @property
+    def filetype(self):
+        kind = filetype.guess(self.file)
+        if kind:
+            if 'video' in kind.mime:
+                return 'video'
+            elif 'image' in kind.mime:
+                return 'image'
+        return ''
+
     # Override clean method to declare only one of text or image/videos are required
     # and not both of them can be blank at the same time
     def clean(self):
@@ -67,7 +98,12 @@ class Tweet(models.Model):
                     if tag_results and len(tag_results) > 0:
                         continue
                 Tag.objects.create(hashtag=hashtag, tweet=self)
-
+        
+        path_root = settings.MEDIA_ROOT + str(self.id)
+        if self.filetype == 'video' and (not os.path.exists(path_root) or len(os.listdir(path_root)) == 0):
+            # video Directory is empty
+            thread = Thread(target = convert_video_to_hls, args = (self, path_root,))
+            thread.start()
 
 class Follow(models.Model):
     # foreign key to the user who is the follower 
@@ -111,6 +147,3 @@ class Tag(models.Model):
                                related_name='tag_tweet')
     tag_datetime = models.DateTimeField(verbose_name=_("tag date and time"), auto_now=False,
                                          auto_now_add=True)
-
-    
-

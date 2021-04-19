@@ -44,10 +44,10 @@
     {% endif %}
     <hr/>
 {% endblock top-content %}
-{% block script-block %}
+{% block top-script-block %}
     {% if user.id is selected_user.id %}
         <script>
             $('.ui.item.profile').addClass('active');
         </script>
     {% endif %}
-{% endblock script-block %}
+{% endblock top-script-block %}
