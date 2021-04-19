@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/github_username/repo_name">
+  <a href="https://github.com/alirezaAsadi2018/Twitter-Project">
     <img src="images/logo.jpg" alt="Logo" width="180" height="180">
   </a>
 
@@ -44,7 +44,7 @@
 
 Home Page (user has logged in)             |  Home Page (anonymous user)
 :-------------------------:|:-------------------------:
-[![Twitter-Project Screen Shot 1][Twitter-Project-screenshot1]](https://example.com)  |  [![Twitter-Project Screen Shot 2][Twitter-Project-screenshot2]](https://example.com)
+[![Twitter-Project Screen Shot 1][Twitter-Project-screenshot1]](images/screenshot1.png)  |  [![Twitter-Project Screen Shot 2][Twitter-Project-screenshot2]](images/screenshot2.png)
 
 
 ### Built With
